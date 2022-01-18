@@ -61,7 +61,7 @@
   "gridUnits": "LY",
   "primaryTokenAttribute": "",
   "secondaryTokenAttribute": "",
-  "url": "https://github.com/DiceT/starforged",
+  "url": "https://github.com/Zaxim/starforged",
   "manifest": "https://raw.githubusercontent.com/Zaxim/starforged/v0.5.2/system.json",
   "download": "https://github.com/Zaxim/starforged/archive/refs/tags/v0.5.2.zip",
   "license": "LICENSE.txt"
