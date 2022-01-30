@@ -1,6 +1,6 @@
 {
-  "name": "starforged-ztest",
-  "title": "Ironsworn: Starforged-ztest",
+  "name": "starforged",
+  "title": "Ironsworn: Starforged",
   "description": "Ironsworn: Starforged for FoundryVTT!",
   "version": "0.5.2",
   "minimumCoreVersion": "0.8.3",
