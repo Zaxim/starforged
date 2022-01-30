@@ -1,37 +1,59 @@
 Move:
   Name: Move
-  Content type: oracles
   Source:
     Name: Starforged Backer Preview
-    Version: "050821"
+    Date: "122421"
   Oracles:
     - Name: Ask the Oracle
-      Semantics:
-        Part of speech: [noun]
-      Tables:
-        - Display name: Ask the Oracle - Almost Certain
+      Aliases: [Ask]
+      Oracles:
+        - Name: Almost Certain
+          Display name: Ask the Oracle / Almost Certain
+          Aliases: ["90"]
           Table:
-            - [1, 10, "No"]
-            - [11, 100, "Yes"]
-        - Display name: Ask the Oracle - Likely
+            - [1, 90, "Yes"]
+            - [91, 100, "No"]
+        - Name: Likely
+          Display name: Ask the Oracle / Likely
+          Aliases: ["75"]
           Table:
-            - [1, 25, "No"]
-            - [26, 100, "Yes"]
-        - Display name: Ask the Oracle - 50/50
+            - [1, 75, "Yes"]
+            - [76, 100, "No"]
+        - Name: 50/50
+          Display name: Ask the Oracle / 50/50
+          Aliases: ["50", "5050"]
           Table:
-            - [1, 50, "No"]
-            - [51, 100, "Yes"]
-        - Display name: Ask the Oracle - Unlikely
+            - [1, 50, "Yes"]
+            - [51, 100, "No"]
+        - Name: Unlikely
+          Display name: Ask the Oracle / Unlikely
+          Aliases: ["25"]
           Table:
-            - [1, 75, "No"]
-            - [76, 100, "Yes"]
-        - Display name: Ask the Oracle - Small Chance
+            - [1, 25, "Yes"]
+            - [26, 100, "No"]
+        - Name: Small Chance
+          Display name: Ask the Oracle / Small Chance
+          Aliases: ["10"]
           Table:
-            - [1, 90, "No"]
-            - [91, 100, "Yes"]
+            - [1, 10, "Yes"]
+            - [11, 100, "No"]
+    - Name: Begin a Session
+      Content:
+        Part of speech: [fragment]
+      Table:
+        - [1, 10, "Flashback reveals an aspect of your background or nature", *suggestEvent]
+        - [11, 20, "Flashback reveals an aspect of another character, place, or faction", *suggestEvent, *suggestFaction]
+        - [21, 30, "Influential character or faction is introduced or given new detail", *suggestNpc, *suggestFaction]
+        - [31, 40, "Seemingly unrelated situations are shown to be connected"]
+        - [41, 50, "External factors create new danger, urgency, or importance for a quest", *suggestEvent]
+        - [51, 60, "Important character is put in danger or suffers a misadventure"]
+        - [61, 70, "Key location is made unsafe or becomes mired in conflict"]
+        - [71, 80, "Unexpected return of an enemy or threat"]
+        - [81, 90, "Peril lies ahead or lurks just out of view"]
+        - [91, 100, "Unforeseen aid is on the way or within reach"]
 
     - Name: Make a Discovery
-      Semantics:
+      Content:
         Part of speech: [fragment]
       Table:
         - [1, 4, Advanced technology waiting to be harnessed or salvaged, *suggestObject]
@@ -51,15 +73,15 @@ Move:
         - [57, 62, Mysterious device or artifact of potential value, *suggestObject]
         - [63, 66, New understanding of an enduring mystery, *suggestEvent]
         - [67, 68, Pathway or means of travel to a distant location, *suggestPlace]
-        - [69, 70, Person or lifeform with phenomenal abilities]
+        - [69, 70, Person or lifeform with phenomenal abilities, *suggestCreature, *suggestNpc]
         - [71, 78, Place of awe-inspiring beauty]
         - [79, 86, Rare and valuable resource, *suggestObject]
         - [87, 88, Safeguarded or idyllic location]
         - [89, 90, Visions or prophesies of the future, *suggestEvent]
         - [91, 100, *Roll_twice]
-   
+
     - Name: Confront Chaos
-      Semantics:
+      Content:
         Part of speech: [fragment]
       Table:
         - [1, 4, Baneful weapon of mass destruction, *suggestObject]
@@ -85,66 +107,52 @@ Move:
         - [88, 92, Technology warped for dark purpose]
         - [93, 96, Vault of dread technology or power, *suggestVault]
         - [97, 100, Worshipers of great and malevolent powers]
-   
+
     - Name: Take Decisive Action
-      Semantics:
+      Content:
         Part of speech: [sentences]
       Table:
-        - [1, 40, "It’s worse than you thought: You or an ally make a suffer move (-2)"]
-        - [41, 52, "The victory is short-lived: A new peril or foe is revealed"]
+        - [1, 40, "It’s worse than you thought: Make a suffer move (-2)"]
+        - [41, 52, "Victory is short-lived: A new peril or foe appears"]
         - [53, 64, "You face collateral damage: Something is lost, damaged, or broken"]
         - [65, 76, "Others pay the price: Someone else suffers the cost"]
         - [77, 88, "Others won’t forget: You are marked for vengeance"]
         - [89, 100, "It gets complicated: The true nature of a foe or objective is revealed"]
-   
+
     - Name: Endure Harm
-      Semantics:
+      Content:
         Part of speech: [sentences]
       Table:
-        - [1, 10, You suffer mortal harm. __Face Death__.]
-        - [11, 20, "You are dying. Within an hour or two, you must __Heal__ and raise your
-          health above 0, or __Face Death__."]
-        - [21, 35, "You are unconscious and out of action. If left alone, you come back to
-          your senses in an hour or two. If you are vulnerable to ongoing harm,
-          __Face Death__."]
-        - [36, 50, "You are reeling and fighting to stay conscious. If you engage in any
-          vigorous activity before taking a breather for a few minutes, roll on
-          this table again (before resolving the other move)."]
+        - [1, 10, "You suffer mortal harm. [Face Death](#Face-Death)."]
+        - [11, 20, "You are dying. Within an hour or two, you must [Heal](#Heal) and raise your health above 0, or [Face Death](#Face-Death)."]
+        - [21, 35, "You are unconscious and out of action. If left alone, you come back to your senses in an hour or two. If you are vulnerable to ongoing harm, [Face Death](#Face-Death)."]
+        - [36, 50, "You are reeling and fighting to stay conscious. If you engage in any vigorous activity before taking a breather for a few minutes, roll on this table again (before resolving the other move)."]
         - [51, 100, You are still standing.]
-   
+
     - Name: Endure Stress
-      Semantics:
+      Content:
         Part of speech: [sentences]
       Table:
-        - [1, 10, You are overwhelmed. __Face Desolation__.]
-        - [11, 25, You give up. __Forsake Your Vow__.]
+        - [1, 10, "You are overwhelmed. [Face Desolation](#Face-Desolation)."]
+        - [11, 25, "You give up. [Forsake Your Vow](#Forsake-Your-Vow)."]
         - [26, 50, "You give in to fear or compulsion, and act against your better instincts."]
         - [51, 100, You persevere.]
-   
+
     - Name: Withstand Damage
-      Semantics:
+      Content:
         Part of speech: [sentences]
       Table:
-        - [1, 10, "Immediate catastrophic destruction. All aboard must __Endure Harm__ or 
-          __Face Death__, as appropriate."]
-        - [11, 25, "Destruction is imminent and unavoidable. If you do not have the means or
-          intention to get clear, __Endure Harm__ or __Face Death__ as
-          appropriate."]
-        - [26, 40, "Destruction is imminent, but can be averted if you __Repair__ your
-          vehicle and raise its integrity above 0. If you fail, see 11-25."]
-        - [41, 55, "You cannot __Repair__ this vehicle until you __Resupply__ and obtain a
-          crucial replacement part. If you roll this result again prior to that,
-          see 11-25."]
-        - [56, 70, "The vehicle is crippled or out of your control. To get it back in
-          action, you must __Repair__ and raise its integrity above 0."]
-        - [71, 85, "It’s a rough ride. All aboard suffer must make the __Endure Harm__,
-          __Endure Stress__, or __Companion Takes a Hit__ move, suffering a
-          serious (-2) cost."]
-        - [86, 95, "You’ve lost fuel, energy, or cargo. __Sacrifice Resources__ (-2)."]
+        - [1, 10, "Immediate catastrophic destruction. All aboard must [Endure Harm](#Endure-Harm) or [Face Death](#Face-Death), as appropriate."]
+        - [11, 25, "Destruction is imminent and unavoidable. If you do not have the means or intention to get clear, [Endure Harm](#Endure-Harm) or [Face Death](#Face-Death) as appropriate."]
+        - [26, 40, "Destruction is imminent, but can be averted if you [Repair](#Repair) your vehicle and raise its integrity above 0. If you fail, see 11-25."]
+        - [41, 55, "You cannot [Repair](#Repair) this vehicle until you [Resupply](#Resupply) and obtain a crucial replacement part. If you roll this result again prior to that, see 11-25."]
+        - [56, 70, "The vehicle is crippled or out of your control. To get it back in action, you must [Repair](#Repair) and raise its integrity above 0."]
+        - [71, 85, "It's a rough ride. All aboard must make the [Endure Harm](#Endure-Harm), [Endure Stress](#Endure-Stress), or [Companion Takes a Hit](#Companion-Takes-a-Hit) move, suffering a serious (-2) cost."]
+        - [86, 95, "You’ve lost fuel, energy, or cargo. [Sacrifice Resources](#Sacrifice-Resources) (-2)."]
         - [96, 100, "Against all odds, the vehicle holds together."]
-   
+
     - Name: Pay the Price
-      Semantics:
+      Content:
         Part of speech: [fragment]
       Table:
         - [1, 2, A trusted individual or community acts against you]
@@ -167,6 +175,6 @@ Move:
         - [82, 88, You are stressed]
         - [89, 95, You are delayed or put at a disadvantage]
         - [96, 100, *Roll_twice]
-   
-  
-  
+
+
+
