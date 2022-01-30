@@ -1,0 +1,141 @@
+Desert World:
+  Name: &class Desert World
+  Aliases: [Desert]
+  Description: *Desert
+  _childOf: Planet
+  Usage:
+    Requires:
+      - Paths: [Planet / Planetary Class]
+        Results: [ *class ]
+  Source:
+    Name: Starforged Backer Preview
+    Date: "081921"
+  Image: "https://i.imgur.com/YLNEHp9.png"
+  Sample Names:
+    - Abalos
+    - Audun
+    - Bishop
+    - Desolation
+    - Dykuma
+    - Fallow
+    - Helios
+    - Mirage
+    - Morricone
+    - Nux
+    - Ordos
+    - Petra
+    - Pyla
+    - Sabulo
+    - Saffron
+    - Sirocco
+    - Sulis
+    - Torrid
+    - Umber
+    - Vermillion
+  Oracles:
+    - Name: Atmosphere
+      Content:
+        Part of speech: [adjective]
+      Usage:
+        Initial: true
+      Table:
+        - [1, 10, *None_thin]
+        - [11, 25, *Toxic]
+        - [26, 40, *Corrosive]
+        - [41, 70, *Marginal]
+        - [71, 95, *Breathable]
+        - [96, 100, *Ideal]
+
+    - Name: Settlements
+      Usage:
+        Initial: true
+        Select table by: Region
+      Oracles:
+        - Display name: Settlements / Terminus
+          Name: Terminus
+          Usage:
+            Requires:
+              - Region: [Terminus]
+          Table:
+            - [1, 50, None]
+            - [51, 60, *Orbital_settlement]
+            - [61, 80, *Planetside_settlement]
+            - [81, 92, *Multiple_settlements]
+            - [93, 100, *Settlements_in_conflict]
+
+        - Display name: Settlements / Outlands
+          Name: Outlands
+          Usage:
+            Requires:
+              - Region: [Outlands]
+          Table:
+            - [1, 75, None]
+            - [76, 83, *Orbital_settlement]
+            - [84, 95, *Planetside_settlement]
+            - [96, 98, *Multiple_settlements]
+            - [99, 100, *Settlements_in_conflict]
+
+        - Display name: Settlements / Expanse
+          Name: Expanse
+          Usage:
+            Requires:
+              - Region: [Expanse]
+          Table:
+            - [1, 90, None]
+            - [91, 96, *Orbital_settlement]
+            - [97, 100, *Planetside_settlement]
+
+    - Name: Observed From Space
+      Content:
+        Part of speech: [fragment]
+      Usage:
+        Max rolls: 2
+      Table:
+        - [1, 11, Dry seabeds]
+        - [12, 22, Expansive dune seas]
+        - [23, 33, Massive canyons]
+        - [34, 44, Perpetual daylight]
+        - [45, 55, Rugged mountains]
+        - [56, 66, Sprawling salt flats]
+        - [67, 77, Vast plateaus]
+        - [78, 88, Vibrant terrain colors]
+        - [89, 98, *Descriptor+Focus]
+        - [99, 100, *Vault_orbital]
+
+    - Display name: Planetside Feature
+      Name: Feature
+      Content:
+        Part of speech: [fragment]
+      Usage:
+        Max rolls: 2
+      Table:
+        - [1, 7, Cavernous sinkholes]
+        - [8, 14, Engulfing sandstorms]
+        - [15, 21, Fleeting rainstorms and flash floods]
+        - [22, 28, Flooded grottos]
+        - [29, 35, Petrified forest]
+        - [36, 42, Rampaging whirlwinds]
+        - [43, 49, Scorched glass plains]
+        - [50, 56, Severe temperature fluctuations]
+        - [57, 63, Sunbaked bones of titanic creatures]
+        - [64, 70, Timeworn cliffside caves]
+        - [71, 77, Towering rock formations]
+        - [78, 84, Violent electrical storms]
+        - [85, 91, Windborne metallic sand]
+        - [92, 98, *Descriptor+Focus]
+        - [99, 100, *Vault_planetside]
+
+    - Name: Life
+      Content:
+        Part of speech: [adjective]
+      Table:
+        - [1, 25, None]
+        - [26, 45, Extinct]
+        - [46, 60, Simple]
+        - [61, 80, Sparse]
+        - [81, 90, Diverse]
+        - [91, 97, Bountiful]
+        - [98, 100, Overrun]
+
+
+

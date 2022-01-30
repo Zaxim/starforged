@@ -18,11 +18,14 @@ Due to this being preview content, this repo is fairly unstable! As the game gro
 
 ## Current Version/Sources
 
-  * **Kickstarter Backer Preview - 050821**
-    * oracles
+  * **Rulebook Backer Preview - 101221**
+    * setting truths
+    * glossary
+  * **Rulebook Backer Preview - 122421**
     * assets
     * moves
-    * encounters/NPCs
+    * encounters
+    * oracles
 
 ## TODO
   * [x] ~~implement standardized keys for references to other game objects, oracle tables, and multiple rolls~~
