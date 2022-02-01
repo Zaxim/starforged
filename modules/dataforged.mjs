@@ -39,7 +39,7 @@ export async function importAssets() {
     const assets = [];
     for ( const asset of assetssJson.Assets ) {
   
-      let type = asset.Category;
+      let type = asset["Asset Type"];
       let name = "";
       let condition = asset.Description != undefined ? asset.Description : "";
       let special1 = "";
@@ -284,10 +284,10 @@ async function replaceMove(text, moveName){
         text += "<p><a class='entity-link' data-entity='Macro' data-id='9Q2yn5Qae0ExvNs3'><i class='fas fa-terminal'></i> Ask the Oracle - Unlikely</a></p>";
         text += "<p><a class='entity-link' data-entity='Macro' data-id='cZHvuImdyVTq1Gqa'><i class='fas fa-terminal'></i> Ask the Oracle - Small Chance</a></p>";
     }
-    else if ( moveName === "Repair" ) { }
     else {
-        let macro = await game.macros.getName(moveName);
-        text += "<p>" + "<a class='entity-link' data-entity='Macro' data-id='" + macro.id + "'><i class='fas fa-terminal'></i> Ask the Oracle - " + moveName + "</a></p>";
+        //TODO: Implement these macros later
+        //let macro = await game.macros.getName(moveName);
+        //text += "<p>" + "<a class='entity-link' data-entity='Macro' data-id='" + macro.id + "'><i class='fas fa-terminal'></i> Ask the Oracle - " + moveName + "</a></p>";
     }
 
   }

@@ -85,9 +85,9 @@ Hooks.on('createActor', async (actor, options, id) => {
 
   // Add starging Legacies and Background Vow
   if (actor.data.type == 'character') {
-    let legacies = game.items.entities.filter( i => i.type == "challenge" && ( i.data.data.type == "legacy" || i.data.data.typ == "backgroundVow" ) );
+    let legacies = game.items.filter( i => i.type == "challenge" && ( i.data.data.type == "legacy" || i.data.data.typ == "backgroundVow" ) );
     let pack = game.packs.get("starforged.legacies");
-    let compendium = pack ? await pack.getContent() : [];
+    let compendium = pack ? await pack.getDocuments() : [];
     const actorLegacies = actor.data.items.filter( i => i.data.data.type == "legacy" || i.data.data.typ == "backgroundVow" );
 
     let legacies_compendium = compendium.filter( l => {
@@ -106,9 +106,9 @@ Hooks.on('createActor', async (actor, options, id) => {
       }
     }
 
-    let moves = game.items.entities.filter( i => i.type == "move" );
+    let moves = game.items.filter( i => i.type == "move" );
     pack = game.packs.get("starforged.starforged-moves");
-    compendium = pack ? await pack.getContent() : [];
+    compendium = pack ? await pack.getDocuments() : [];
     const actorMoves = actor.data.items.filter( i => i.data.data.type == "move" );
 
     let moves_compendium = compendium.filter( l => {
