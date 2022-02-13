@@ -1,11 +1,11 @@
 {
-  "name": "starforged",
-  "title": "Ironsworn: Starforged",
-  "description": "Ironsworn: Starforged for FoundryVTT!",
-  "version": "0.5.5",
+  "name": "starforged-forked",
+  "title": "Ironsworn: Starforged-forked",
+  "description": "Forked version of Ironsworn: Starforged for FoundryVTT!",
+  "version": "0.6.0",
   "minimumCoreVersion": "0.8.3",
   "compatibleCoreVersion": "0.8.8",
-  "author": "Dice T",
+  "author": "Dice T, Zaxim",
   "esmodules": [
     "modules/starforged.mjs"
   ],
@@ -61,8 +61,8 @@
   "gridUnits": "LY",
   "primaryTokenAttribute": "",
   "secondaryTokenAttribute": "",
-  "url": "https://github.com/Zaxim/starforged",
-  "manifest": "https://raw.githubusercontent.com/Zaxim/starforged/v0.5.5/system.json",
-  "download": "https://github.com/Zaxim/starforged/archive/refs/tags/v0.5.5.zip",
+  "url": "https://github.com/Zaxim/starforged-forked",
+  "manifest": "https://raw.githubusercontent.com/Zaxim/starforged-forked/v0.6.0/system.json",
+  "download": "https://raw.githubusercontent.com/Zaxim/starforged-forked/archive/refs/tags/v0.6.0.zip",
   "license": "LICENSE.txt"
 }
