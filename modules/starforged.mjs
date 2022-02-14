@@ -71,8 +71,8 @@ Hooks.on("init", () => {
 Hooks.once("ready", async() => {
     // This is reserved for things that need to happen right after Foundry fully loads (after init).
     await initializeFolders();
-    // console.log("About to Process DataForged")
-    // await processDataforged();
+    console.log("About to Process DataForged")
+    await processDataforged();
 
     await initializeRollTables();
     return;

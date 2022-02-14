@@ -1,7 +1,10 @@
 export async function processDataforged() {
 
-    for (const key of ['starforged.starforged-moves', 'starforged.starforged-assets']) {
+    const pack_list = ['starforged.starforged-moves', 'starforged.starforged-assets', 'starforged.starforged-tables2']
+
+    for (const key of pack_list) {
         const pack = await game.packs.get(key);
+        await pack.configure({ locked: false });
         const idsToDelete = pack.index.map( x => x._id )
         for ( const id of idsToDelete ) {
             const document = await pack.getDocument(id);
@@ -9,8 +12,14 @@ export async function processDataforged() {
         }
     }
     
-    await importMoves();
-    await importAssets();
+    await importTruths();
+    // await importMoves();
+    // await importAssets();
+
+    for (const key of pack_list) {
+      const pack = await game.packs.get(key);
+      await pack.configure({ locked: true });
+  }
 
 }
 
@@ -31,6 +40,76 @@ function replaceHTML(text){
     html = html.replace(/\u002A/g, "<li>");
 
     return(html);
+}
+
+export async function importTruths() {
+  const truthsJson = await fetch('/systems/starforged/dataforged-main/setting_truths.json').then(x => x.json());
+
+  const truths = [];
+  let i = 1;
+  for ( const truth of truthsJson["Setting Truths"] ) {
+    let truth_num = i.toString().padStart(2, '0');
+    let truth_name =  `${truth_num}. ${truth.Name}`;
+
+    let j = 1;
+    let prevRange = 1;
+    const tableResults = [];
+    for ( const table of truth.Table ) {
+      
+      // Deal with inner tables in Truths
+      let innerPrevRange = 1;
+      const innerTableResults = [];
+
+      let innerTables = (table.Table) ? table.Table : [];
+      for ( const innerTable of innerTables ) {
+        let innerTableResultData = {
+          type: CONST.TABLE_RESULT_TYPES.TEXT,
+          text: innerTable.Description,
+          weight: innerTable.Chance - innerPrevRange + 1,
+          range: [innerPrevRange, innerTable.Chance]
+        };
+        innerTableResults.push(innerTableResultData);
+        innerPrevRange = innerTable.Chance + 1
+      }
+
+      let innerTableDesc = "";
+      if (innerTableResults.length != 0){
+        let innerTableName = `${truth_num}.${j} ${truth.Name}`;
+        innerTableDesc = `[${innerTableName}]`;
+        truths.push({
+          name: innerTableName,
+          description: `Your Truths - ${truth.Name}`,
+          results: innerTableResults,
+          formula: "1d100"
+        })
+      }
+
+      let tableResultData = {
+        type: CONST.TABLE_RESULT_TYPES.TEXT,
+        text: `<p><strong>${table.Description}</strong></p> <p>${table.Details}${innerTableDesc}</p> <p><em>Quest Starter: ${table["Quest Starter"]}</em></p>`,
+        weight: table.Chance - prevRange + 1,
+        range: [prevRange, table.Chance]
+      };
+      tableResults.push(tableResultData)
+      prevRange = table.Chance + 1
+      j += 1;
+    }
+
+    truths.push({
+      name: truth_name,
+      description: `Your Truths - ${truth.Name}`,
+      results: tableResults,
+      formula: "1d100"
+    })
+    i += 1;
+  }
+
+  const rollTable = game.packs.get('starforged.starforged-tables2');
+  for ( const truth of truths ) {
+      await rollTable.documentClass.create (
+        truth, {pack: rollTable.collection} );
+  }
+
 }
 
 export async function importAssets() {

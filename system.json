@@ -48,6 +48,13 @@
       "system": "starforged",
       "path": "./packs/tables.db",
       "entity": "RollTable"
+    },
+    {
+      "name": "starforged-tables2",
+      "label": "Starforged Tables2",
+      "system": "starforged",
+      "path": "./packs/tables2.db",
+      "entity": "RollTable"
     }
   ],
   "languages": [
