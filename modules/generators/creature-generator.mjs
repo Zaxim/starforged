@@ -13,7 +13,7 @@ export async function generateCreature() {
     let creatureName = result.result + " - " + environment;
 
     result = await rollFromFolder( "Creatures - Scale", true );
-    if ( result.result === "Ultra-scale" ) {
+    if ( result.result === "⏵Ultra-scale" ) {
         result = await rollFromFolder( "Creatures - Ultra-Scale", true );
     }
     content += "<p><b>" + result.prefix + "</b>: " + result.result + "</p>";

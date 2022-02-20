@@ -13,13 +13,13 @@ export async function generateStarship() {
     starshipType2 = await extractStarshipRole( starshipType2 );
 
     let content = "";
-    if ( starshipType1.result === "Fleet" ) {
+    if ( starshipType1.result === "⏵Fleet" ) {
         starshipType1 =  await rollFromFolder( "[ Starships - Fleets ]", true );
         content += "<p><h3><b>Fleet</b>: " + starshipType1.result + "</h3></p>";
         starshipName.result = starshipType1.result;
     }
     else if ( starshipType1.result === "Ships in conflict (roll twice)") {
-        while ( starshipType1.result === "Fleet" || starshipType1.result === "Ships in conflict (roll twice)" ) {
+        while ( starshipType1.result === "⏵Fleet" || starshipType1.result === "Ships in conflict (roll twice)" ) {
             starshipType1 = await rollFromFolder( "[ Starships - Types ]", true );
             starshipType1 = await extractStarshipRole(starshipType1);
         }

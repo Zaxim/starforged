@@ -55,6 +55,7 @@ STARFORGED.locationTheme = {
   Haunted:        'Haunted',
   Infested:       'Infested',
   Inhabited:      'Inhabited',
+  Mechanical:     'Mechanical',
   Ruined:         'Ruined',
   Sacred:         'Sacred'
 }

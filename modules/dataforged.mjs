@@ -1,25 +1,29 @@
 export async function processDataforged() {
 
-    const pack_list = ['starforged.starforged-moves', 'starforged.starforged-assets', 'starforged.starforged-tables2']
+    const pack_list = ['starforged.starforged-moves', 'starforged.starforged-assets', 'starforged.starforged-tables']
+    const delete_list = ['starforged.starforged-moves', 'starforged.starforged-assets']
 
     for (const key of pack_list) {
         const pack = await game.packs.get(key);
         await pack.configure({ locked: false });
-        const idsToDelete = pack.index.map( x => x._id )
-        for ( const id of idsToDelete ) {
-            const document = await pack.getDocument(id);
-            document.delete();
+        if (delete_list.includes(key)){
+          const idsToDelete = pack.index.map( x => x._id )
+          for ( const id of idsToDelete ) {
+              const document = await pack.getDocument(id);
+              await document.delete();
+          }
         }
     }
     
     await importTruths();
-    // await importMoves();
-    // await importAssets();
+    await importOracles();
+    //await importMoves();
+    //await importAssets();
 
-    for (const key of pack_list) {
-      const pack = await game.packs.get(key);
-      await pack.configure({ locked: true });
-  }
+  //   for (const key of pack_list) {
+  //     const pack = await game.packs.get(key);
+  //     await pack.configure({ locked: true });
+  // }
 
 }
 
@@ -42,6 +46,340 @@ function replaceHTML(text){
     return(html);
 }
 
+export async function importOracles() {
+  // Map of dataforged IDs to module internal names
+  const dataforgedIdMap = {
+    "Oracles / Character Creation / Background Assets" : "2. Choose Two Paths",
+    "Oracles / Character Creation / Backstory Prompts": "3. Create Your Backstory",
+    "Oracles / Character Creation / Starship History": "5. Board Your Starship",
+    "Oracles / Character Creation / Starship Quirks": "5. Envision the Starship",
+    "Oracles / Misc / Anomaly Effect": "Anomaly Effect",
+    "Oracles / Moves / Ask the Oracle / 50/50": "Ask the Oracle - 50/50",
+    "Oracles / Moves / Ask the Oracle / Almost Certain": "Ask the Oracle - Almost Certain",
+    "Oracles / Moves / Confront Chaos": "Ask the Oracle - Confront Chaos",
+    "Oracles / Moves / Endure Harm": "Ask the Oracle - Endure Harm",
+    "Oracles / Moves / Endure Stress": "Ask the Oracle - Endure Stress",
+    "Oracles / Moves / Ask the Oracle / Likely": "Ask the Oracle - Likely",
+    "Oracles / Moves / Make a Discovery": "Ask the Oracle - Make a Discovery",
+    "Oracles / Moves / Pay the Price": "Ask the Oracle - Pay the Price",
+    "Oracles / Moves / Ask the Oracle / Small Chance": "Ask the Oracle - Small Chance",
+    "Oracles / Moves / Take Decisive Action": "Ask the Oracle - Take Decisive Action",
+    "Oracles / Moves / Ask the Oracle / Unlikely": "Ask the Oracle - Unlikely",
+    "Oracles / Moves / Withstand Damage": "Ask the Oracle - Withstand Damage",
+    "Oracles / Characters / Name / Callsign": "Character - Callsign",
+    "Oracles / Characters / Disposition": "Character - Disposition",
+    "Oracles / Characters / Name / Family Name": "Character - Family Name",
+    "Oracles / Characters / First Look": "Character - First Look",
+    "Oracles / Characters / Name / Given Name": "Character - Given Name",
+    "Oracles / Characters / Goal": "Character - Goal",
+    "Oracles / Characters / Revealed Aspect": "Character - Revealed Aspect",
+    "Oracles / Characters / Role": "Character - Role",
+    "Oracles / Misc / Combat Action": "Combat Action",
+    "Oracles / Creatures / Encountered Behavior": "Creature - Encountered Behavior",
+    "Oracles / Creatures / First Look": "Creature - First Look",
+    "Oracles / Creatures / Revealed Aspect": "Creature - Revealed Aspect",
+    "Oracles / Creatures / Basic Form / Air": "Creatures - Basic Form - Air",
+    "Oracles / Creatures / Basic Form / Interior": "Creatures - Basic Form - Interior",
+    "Oracles / Creatures / Basic Form / Land": "Creatures - Basic Form - Land",
+    "Oracles / Creatures / Basic Form / Liquid": "Creatures - Basic Form - Liquid",
+    "Oracles / Creatures / Basic Form / Space": "Creatures - Basic Form - Space",
+    "Oracles / Creatures / Environment": "Creatures - Environment",
+    "Oracles / Creatures / Scale": "Creatures - Scale",
+    "Oracles / Creatures / Ultra-scale": "Creatures - Ultra-Scale",
+    "Oracles / Derelicts / Access / Area": "Derelict - Access - Area",
+    "Oracles / Derelicts / Access / Feature": "Derelict - Access - Feature",
+    "Oracles / Derelicts / Access / Opportunity": "Derelict - Access - Opportunity",
+    "Oracles / Derelicts / Access / Peril": "Derelict - Access - Peril",
+    "Oracles / Derelicts / Community / Area": "Derelict - Community - Area",
+    "Oracles / Derelicts / Community / Feature": "Derelict - Community - Feature",
+    "Oracles / Derelicts / Community / Opportunity": "Derelict - Community - Opportunity",
+    "Oracles / Derelicts / Community / Peril": "Derelict - Community - Peril",
+    "Oracles / Derelicts / Engineering / Area": "Derelict - Engineering - Area",
+    "Oracles / Derelicts / Engineering / Feature": "Derelict - Engineering - Feature",
+    "Oracles / Derelicts / Engineering / Opportunity": "Derelict - Engineering - Opportunity",
+    "Oracles / Derelicts / Engineering / Peril": "Derelict - Engineering - Peril",
+    "Oracles / Derelicts / Inner First Look": "Derelict - Inner First Look",
+    "Oracles / Derelicts / Living / Area": "Derelict - Living - Area",
+    "Oracles / Derelicts / Living / Feature": "Derelict - Living - Feature",
+    "Oracles / Derelicts / Living / Opportunity": "Derelict - Living - Opportunity",
+    "Oracles / Derelicts / Living / Peril": "Derelict - Living - Peril",
+    "Oracles / Derelicts / Location": "Derelict - Location",
+    "Oracles / Derelicts / Medical / Area": "Derelict - Medical - Area",
+    "Oracles / Derelicts / Medical / Feature": "Derelict - Medical - Feature",
+    "Oracles / Derelicts / Medical / Opportunity": "Derelict - Medical - Opportunity",
+    "Oracles / Derelicts / Medical / Peril": "Derelict - Medical - Peril",
+    "Oracles / Derelicts / Operations / Area": "Derelict - Operations - Area",
+    "Oracles / Derelicts / Operations / Feature": "Derelict - Operations - Feature",
+    "Oracles / Derelicts / Operations / Opportunity": "Derelict - Operations - Opportunity",
+    "Oracles / Derelicts / Operations / Peril": "Derelict - Operations - Peril",
+    "Oracles / Derelicts / Outer First Look": "Derelict - Outer First Look",
+    "Oracles / Derelicts / Production / Area": "Derelict - Production - Area",
+    "Oracles / Derelicts / Production / Feature": "Derelict - Production - Feature",
+    "Oracles / Derelicts / Production / Opportunity": "Derelict - Production - Opportunity",
+    "Oracles / Derelicts / Production / Peril": "Derelict - Production - Peril",
+    "Oracles / Derelicts / Research / Area": "Derelict - Research - Area",
+    "Oracles / Derelicts / Research / Feature": "Derelict - Research - Feature",
+    "Oracles / Derelicts / Research / Opportunity": "Derelict - Research - Opportunity",
+    "Oracles / Derelicts / Research / Peril": "Derelict - Research - Peril",
+    "Oracles / Derelicts / Type / Deep Space": "Derelict - Type - Deep Space",
+    "Oracles / Derelicts / Type / Orbital": "Derelict - Type - Orbital",
+    "Oracles / Derelicts / Type / Planetside": "Derelict - Type - Planetside",
+    "Oracles / Derelicts / Zone / Settlement": "Derelict Zone - Settlement",
+    "Oracles / Derelicts / Zone / Starship": "Derelict Zone - Starship",
+    "Oracles / Derelicts / Condition": "Derelicts - Condition",
+    "Oracles / Factions / Affiliation": "Factions - Affiliation",
+    "Oracles / Factions / Dominion": "Factions - Dominion",
+    "Oracles / Factions / Fringe Group": "Factions - Fringe Group",
+    "Oracles / Factions / Guild": "Factions - Guild",
+    "Oracles / Factions / Identity": "Factions - Identity",
+    "Oracles / Factions / Influence": "Factions - Influence",
+    "Oracles / Factions / Leadership": "Factions - Leadership",
+    "Oracles / Factions / Legacy": "Factions - Legacy",
+    "Oracles / Factions / Name Template": "Factions - Name Template",
+    "Oracles / Factions / Projects": "Factions - Projects",
+    "Oracles / Factions / Quirks": "Factions - Quirks",
+    "Oracles / Factions / Relationships": "Factions - Relationships",
+    "Oracles / Factions / Rumors": "Factions - Rumors",
+    "Oracles / Factions / Type": "Factions - Type",
+    "Oracles / Planets / Desert / Atmosphere": "Desert World - Atmosphere",
+    "Oracles / Planets / Desert / Life": "Desert World - Life",
+    "Oracles / Planets / Desert / Observed From Space": "Desert World - Observed From Space",
+    "Oracles / Planets / Desert / Feature": "Desert World - Planetside Feature",
+    "Oracles / Planets / Desert / Settlements / Expanse": "Desert World - Settlements - Expanse",
+    "Oracles / Planets / Desert / Settlements / Outlands": "Desert World - Settlements - Outlands",
+    "Oracles / Planets / Desert / Settlements / Terminus": "Desert World - Settlements - Terminus",
+    "Oracles / Planets / Furnace / Atmosphere": "Furnace World - Atmosphere",
+    "Oracles / Planets / Furnace / Life": "Furnace World - Life",
+    "Oracles / Planets / Furnace / Observed From Space": "Furnace World - Observed From Space",
+    "Oracles / Planets / Furnace / Feature": "Furnace World - Planetside Feature",
+    "Oracles / Planets / Furnace / Settlements / Expanse": "Furnace World - Settlements - Expanse",
+    "Oracles / Planets / Furnace / Settlements / Outlands": "Furnace World - Settlements - Outlands",
+    "Oracles / Planets / Furnace / Settlements / Terminus": "Furnace World - Settlements - Terminus",
+    "Oracles / Planets / Grave / Atmosphere": "Grave World - Atmosphere",
+    "Oracles / Planets / Grave / Life": "Grave World - Life",
+    "Oracles / Planets / Grave / Observed From Space": "Grave World - Observed From Space",
+    "Oracles / Planets / Grave / Feature": "Grave World - Planetside Feature",
+    "Oracles / Planets / Grave / Settlements / Expanse": "Grave World - Settlements - Expanse",
+    "Oracles / Planets / Grave / Settlements / Outlands": "Grave World - Settlements - Outlands",
+    "Oracles / Planets / Grave / Settlements / Terminus": "Grave World - Settlements - Terminus",
+    "Oracles / Planets / Ice / Atmosphere": "Ice World - Atmosphere",
+    "Oracles / Planets / Ice / Life": "Ice World - Life",
+    "Oracles / Planets / Ice / Observed From Space": "Ice World - Observed From Space",
+    "Oracles / Planets / Ice / Feature": "Ice World - Planetside Feature",
+    "Oracles / Planets / Ice / Settlements / Expanse": "Ice World - Settlements - Expanse",
+    "Oracles / Planets / Ice / Settlements / Outlands": "Ice World - Settlements - Outlands",
+    "Oracles / Planets / Ice / Settlements / Terminus": "Ice World - Settlements - Terminus",
+    "Oracles / Character Creation / Inciting Incident": "Inciting Incident Ideas",
+    "Oracles / Planets / Jovian / Atmosphere": "Jovian World - Atmosphere",
+    "Oracles / Planets / Jovian / Life": "Jovian World - Life",
+    "Oracles / Planets / Jovian / Observed From Space": "Jovian World - Observed From Space",
+    "Oracles / Planets / Jovian / Feature": "Jovian World - Planetside Feature",
+    "Oracles / Planets / Jovian / Settlements / Expanse": "Jovian World - Settlements - Expanse",
+    "Oracles / Planets / Jovian / Settlements / Outlands": "Jovian World - Settlements - Outlands",
+    "Oracles / Planets / Jovian / Settlements / Terminus": "Jovian World - Settlements - Terminus",
+    "Oracles / Planets / Jungle / Atmosphere": "Jungle World - Atmosphere",
+    "Oracles / Planets / Jungle / Life": "Jungle World - Life",
+    "Oracles / Planets / Jungle / Observed From Space": "Jungle World - Observed From Space",
+    "Oracles / Planets / Jungle / Feature": "Jungle World - Planetside Feature",
+    "Oracles / Planets / Jungle / Settlements / Expanse": "Jungle World - Settlements - Expanse",
+    "Oracles / Planets / Jungle / Settlements / Outlands": "Jungle World - Settlements - Outlands",
+    "Oracles / Planets / Jungle / Settlements / Terminus": "Jungle World - Settlements - Terminus",
+    "Oracles / Location Themes / Chaotic / Feature": "Location Theme - Chaotic - Feature",
+    "Oracles / Location Themes / Chaotic / Opportunity": "Location Theme - Chaotic - Opportunity",
+    "Oracles / Location Themes / Chaotic / Peril": "Location Theme - Chaotic - Peril",
+    "Oracles / Location Themes / Fortified / Feature": "Location Theme - Fortified - Feature",
+    "Oracles / Location Themes / Fortified / Opportunity": "Location Theme - Fortified - Opportunity",
+    "Oracles / Location Themes / Fortified / Peril": "Location Theme - Fortified - Peril",
+    "Oracles / Location Themes / Haunted / Feature": "Location Theme - Haunted - Feature",
+    "Oracles / Location Themes / Haunted / Opportunity": "Location Theme - Haunted - Opportunity",
+    "Oracles / Location Themes / Haunted / Peril": "Location Theme - Haunted - Peril",
+    "Oracles / Location Themes / Infested / Feature": "Location Theme - Infested - Feature",
+    "Oracles / Location Themes / Infested / Opportunity": "Location Theme - Infested - Opportunity",
+    "Oracles / Location Themes / Infested / Peril": "Location Theme - Infested - Peril",
+    "Oracles / Location Themes / Inhabited / Feature": "Location Theme - Inhabited - Feature",
+    "Oracles / Location Themes / Inhabited / Opportunity": "Location Theme - Inhabited - Opportunity",
+    "Oracles / Location Themes / Inhabited / Peril": "Location Theme - Inhabited - Peril",
+    "Oracles / Location Themes / Mechanical / Feature": "Location Theme - Mechanical - Feature",
+    "Oracles / Location Themes / Mechanical / Opportunity": "Location Theme - Mechanical - Opportunity",
+    "Oracles / Location Themes / Mechanical / Peril": "Location Theme - Mechanical - Peril",
+    "Oracles / Location Themes / Ruined / Feature": "Location Theme - Ruined - Feature",
+    "Oracles / Location Themes / Ruined / Opportunity": "Location Theme - Ruined - Opportunity",
+    "Oracles / Location Themes / Ruined / Peril": "Location Theme - Ruined - Peril",
+    "Oracles / Location Themes / Sacred / Feature": "Location Theme - Sacred - Feature",
+    "Oracles / Location Themes / Sacred / Opportunity": "Location Theme - Sacred - Opportunity",
+    "Oracles / Location Themes / Sacred / Peril": "Location Theme - Sacred - Peril",
+    "Oracles / Location Themes / Theme Type": "Location Theme - Type",
+    "Oracles / Planets / Ocean / Atmosphere": "Ocean World - Atmosphere",
+    "Oracles / Planets / Ocean / Life": "Ocean World - Life",
+    "Oracles / Planets / Ocean / Observed From Space": "Ocean World - Observed From Space",
+    "Oracles / Planets / Ocean / Feature": "Ocean World - Planetside Feature",
+    "Oracles / Planets / Ocean / Settlements / Expanse": "Ocean World - Settlements - Expanse",
+    "Oracles / Planets / Ocean / Settlements / Outlands": "Ocean World - Settlements - Outlands",
+    "Oracles / Planets / Ocean / Settlements / Terminus": "Ocean World - Settlements - Terminus",
+    // Doesn't exit in Dataforged : "Planet - Name Prefix",
+    // Doesn't exist in Dataforgd : "Planet - Names 1",
+    // Doesn't exist in Dataforged : "Planet - Names 2",
+    // Doesn't exist in Dataforged : "Planet Name Suffix",
+    "Oracles / Planets / Class": "Planetary Class",
+    "Oracles / Planets / Opportunity / Lifebearing": "Planetside Opportunity - Lifebearing",
+    "Oracles / Planets / Opportunity / Lifeless": "Planetside Opportunity - Lifeless",
+    "Oracles / Planets / Peril / Lifebearing": "Planetside Peril - Lifebearing",
+    "Oracles / Planets / Peril / Lifeless": "Planetside Peril - Lifeless",
+    "Oracles / Vaults / Form": "Precursor Vault - Form",
+    "Oracles / Vaults / Interior / First Look": "Precursor Vault - Inner First Look",
+    "Oracles / Vaults / Interior / Feature": "Precursor Vault - Interior Feature",
+    "Oracles / Vaults / Interior / Opportunity": "Precursor Vault - Interior Opportunity",
+    "Oracles / Vaults / Interior / Peril": "Precursor Vault - Interior Peril",
+    "Oracles / Vaults / Location": "Precursor Vault - Location",
+    "Oracles / Vaults / Material": "Precursor Vault - Material",
+    "Oracles / Vaults / Outer First Look": "Precursor Vault - Outer First Look",
+    "Oracles / Vaults / Sanctum / Purpose": "Precursor Vault - Purpose",
+    "Oracles / Vaults / Sanctum / Feature": "Precursor Vault - Sanctum Feature",
+    "Oracles / Vaults / Sanctum / Opportunity": "Precursor Vault - Sanctum Opportunity",
+    "Oracles / Vaults / Sanctum / Peril": "Precursor Vault - Sanctum Peril",
+    "Oracles / Vaults / Scale": "Precursor Vault - Scale",
+    "Oracles / Vaults / Shape": "Precursor Vault - Shape",
+    "Oracles / Planets / Rocky / Atmosphere": "Rocky World - Atmosphere",
+    "Oracles / Planets / Rocky / Life": "Rocky World - Life",
+    "Oracles / Planets / Rocky / Observed From Space": "Rocky World - Observed From Space",
+    "Oracles / Planets / Rocky / Feature": "Rocky World - Planetside Feature",
+    "Oracles / Planets / Rocky / Settlements / Expanse": "Rocky World - Settlements - Expanse",
+    "Oracles / Planets / Rocky / Settlements / Outlands": "Rocky World - Settlements - Outlands",
+    "Oracles / Planets / Rocky / Settlements / Terminus": "Rocky World - Settlements - Terminus",
+    // Does't exist in Dataforged: "Sector Location",
+    "Oracles / Space / Sector Name / Prefix": "Sector Name Prefix",
+    "Oracles / Space / Sector Name / Suffix": "Sector Name Suffix",
+    "Oracles / Character Creation / Sector Trouble": "Sector Trouble",
+    "Oracles / Settlements / Authority": "Settlement Authority",
+    "Oracles / Settlements / First Look": "Settlement First Look",
+    "Oracles / Settlements / Initial Contact": "Settlement Initial Contact",
+    "Oracles / Settlements / Location": "Settlement Location",
+    //Doesn't exist in dataforged : "Settlement Name Prefix",
+    //Doesn't exist in dataforged: "Settlement Name Suffix",
+    "Oracles / Settlements / Name": "Settlement Name",
+    "Oracles / Settlements / Population / Expanse": "Settlement Population - Expanse",
+    "Oracles / Settlements / Population / Outlands": "Settlement Population - Outlands",
+    "Oracles / Settlements / Population / Terminus": "Settlement Population - Terminus",
+    "Oracles / Settlements / Projects": "Settlement Projects",
+    "Oracles / Settlements / Trouble": "Settlement Troubles",
+    "Oracles / Planets / Shattered / Atmosphere": "Shattered World - Atmosphere",
+    "Oracles / Planets / Shattered / Life": "Shattered World - Life",
+    "Oracles / Planets / Shattered / Observed From Space": "Shattered World - Observed From Space",
+    "Oracles / Planets / Shattered / Feature": "Shattered World - Planetside Feature",
+    "Oracles / Planets / Shattered / Settlements / Expanse": "Shattered World - Settlements - Expanse",
+    "Oracles / Planets / Shattered / Settlements / Outlands": "Shattered World - Settlements - Outlands",
+    "Oracles / Planets / Shattered / Settlements / Terminus": "Shattered World - Settlements - Terminus",
+    "Oracles / Space / Sighting / Expanse": "Space Sighting - Expanse",
+    "Oracles / Space / Sighting / Outlands": "Space Sighting - Outlands",
+    "Oracles / Space / Sighting / Terminus": "Space Sighting - Terminus",
+    "Oracles / Space / Opportunity": "Spaceborne Opportunity",
+    "Oracles / Space / Peril": "Spaceborne Peril",
+    "Oracles / Core / Action": "Starforged - Action",
+    "Oracles / Core / Descriptor": "Starforged - Descriptor",
+    "Oracles / Core / Focus": "Starforged - Focus",
+    "Oracles / Starships / Name": "Starforged - Starship Names",
+    "Oracles / Core / Theme": "Starforged - Theme",
+    "Oracles / Starships / First Look": "Starship - First Look",
+    "Oracles / Starships / Initial Contact": "Starship - Initial Contact",
+    "Oracles / Starships / Fleet": "Starship Fleet",
+    "Oracles / Starships / Mission / Expanse": "Starship Mission - Expanse",
+    "Oracles / Starships / Mission / Outlands": "Starship Mission - Outlands",
+    "Oracles / Starships / Mission / Terminus": "Starship Mission - Terminus",
+    "Oracles / Starships / Type": "Starship Type",
+    "Oracles / Space / Stellar Object": "Stellar Object",
+    "Oracles / Misc / Story Complication": "Story Complication",
+    "Oracles / Misc / Story Clue": "Story Clue",
+    "Oracles / Planets / Tainted / Atmosphere": "Tainted World - Atmosphere",
+    "Oracles / Planets / Tainted / Life": "Tainted World - Life",
+    "Oracles / Planets / Tainted / Observed From Space": "Tainted World - Observed From Space",
+    "Oracles / Planets / Tainted / Feature": "Tainted World - Planetside Feature",
+    "Oracles / Planets / Tainted / Settlements / Expanse": "Tainted World - Settlements - Expanse",
+    "Oracles / Planets / Tainted / Settlements / Outlands": "Tainted World - Settlements - Outlands",
+    "Oracles / Planets / Tainted / Settlements / Terminus": "Tainted World - Settlements - Terminus",
+    "Oracles / Planets / Vital / Atmosphere": "Vital World - Atmosphere",
+    "Oracles / Planets / Vital / Biomes": "Vital World - Biomes",
+    "Oracles / Planets / Vital / Diversity": "Vital World - Diversity",
+    "Oracles / Planets / Vital / Life": "Vital World - Life",
+    "Oracles / Planets / Vital / Observed From Space": "Vital World - Observed From Space",
+    "Oracles / Planets / Vital / Feature": "Vital World - Planetside Feature",
+    "Oracles / Planets / Vital / Settlements / Expanse": "Vital World - Settlements - Expanse",
+    "Oracles / Planets / Vital / Settlements / Outlands": "Vital World - Settlements - Outlands",
+    "Oracles / Planets / Vital / Settlements / Terminus": "Vital World - Settlements - Terminus"
+  // Doesn't exist in Dataforged : "d100 Table Template"
+    // TODO: Add faction oracles
+  };
+
+  const oraclesJson = await fetch('/systems/starforged/dataforged-main/next/oracles.json').then(x => x.json());
+  let oracleTables = [];
+  const pack = await game.packs.get("starforged.starforged-tables");
+  const index = await pack.getIndex();
+
+  const updateOracleTable = async (oracle) => {
+    if (oracle["$id"] in dataforgedIdMap) {
+
+      const table_name = dataforgedIdMap[oracle["$id"]];
+      const tableResultDataList = [];
+
+      for (let t of oracle.Table){
+        tableResultDataList.push({
+          type: CONST.TABLE_RESULT_TYPES.TEXT,
+          text: t.Result,
+          weight: t.Ceiling - t.Floor + 1,
+          range: [t.Floor, t.Ceiling]
+        });
+      }
+  
+      let rollTableData = {
+        name: table_name,
+        description: oracle.Name,
+        results: tableResultDataList,
+        formula: "1d100"
+      };
+
+      const findResult = await index.find( i => i.name === table_name );
+      if (typeof findResult !== "undefined") {
+        const table = await pack.getDocument(findResult._id);
+        rollTableData.description = table.description
+        await table.delete();
+      }
+      return await pack.documentClass.create ( rollTableData, {pack: pack.collection});
+    }
+
+    return null;
+  }
+
+  const isObject = (value) => {
+    return !!(value && typeof value === "object");
+  };
+
+  const iterateTable = (object = {}) => {
+    if (isObject(object)) {
+      const entries = Object.entries(object);
+  
+      for (let i = 0; i < entries.length; i += 1) {
+        const [objectKey, objectValue] = entries[i];
+  
+        if (objectKey === "Table" ) {
+          updateOracleTable(object);
+        }
+  
+        if (isObject(objectValue)) {
+          const child = iterateTable(objectValue);
+  
+          if (child !== null) {
+            return child;
+          }
+        }
+      }
+    }
+  
+    return null;
+  };
+
+  await iterateTable(oraclesJson);
+}
+
+// TODO: Refactor duplicate code, especially TableResult code
 export async function importTruths() {
   const truthsJson = await fetch('/systems/starforged/dataforged-main/setting_truths.json').then(x => x.json());
 
@@ -75,7 +413,7 @@ export async function importTruths() {
       let innerTableDesc = "";
       if (innerTableResults.length != 0){
         let innerTableName = `${truth_num}.${j} ${truth.Name}`;
-        innerTableDesc = `[${innerTableName}]`;
+        innerTableDesc = ` [${innerTableName}]`;
         truths.push({
           name: innerTableName,
           description: `Your Truths - ${truth.Name}`,
@@ -86,6 +424,7 @@ export async function importTruths() {
 
       let tableResultData = {
         type: CONST.TABLE_RESULT_TYPES.TEXT,
+        // TODO: Deal with innerTableDesc result in arbitrary location a la Setting Truths / Artificial Intelligence / 1-33
         text: `<p><strong>${table.Description}</strong></p> <p>${table.Details}${innerTableDesc}</p> <p><em>Quest Starter: ${table["Quest Starter"]}</em></p>`,
         weight: table.Chance - prevRange + 1,
         range: [prevRange, table.Chance]
@@ -104,13 +443,20 @@ export async function importTruths() {
     i += 1;
   }
 
-  const rollTable = game.packs.get('starforged.starforged-tables2');
+  const rollTable = game.packs.get('starforged.starforged-tables');
+  const index = await rollTable.getIndex();
   for ( const truth of truths ) {
-      await rollTable.documentClass.create (
-        truth, {pack: rollTable.collection} );
+    let findResult = await index.find( i => i.name === truth.name );
+    if (typeof findResult !== "undefined") {
+      const table = await rollTable.getDocument(findResult._id);
+      await table.delete();
+    }
+
+    await rollTable.documentClass.create (truth, {pack: rollTable.collection});
   }
 
 }
+
 
 export async function importAssets() {
     const assetssJson = await fetch('/systems/starforged/dataforged-main/assets.json').then(x => x.json());

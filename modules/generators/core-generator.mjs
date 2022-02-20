@@ -22,14 +22,14 @@ export async function rollFromFolder( folder, silent = false ) {
 
 export async function validateResults( results, folder, silent = false ) {
     switch ( results.result ) {
-        case "Action + Theme": {
+        case "⏵Action + Theme": {
             let result = await rollFromFolder( "[ Actions ]", silent );
             results.result = "[A+T] " + result.result + " + ";
             result = await rollFromFolder( "[ Themes ]", silent );
             results.result += result.result;
             break;
         }
-        case "Descriptor + Focus": {
+        case "⏵Descriptor + Focus": {
             let result = await rollFromFolder( "[ Descriptors ]", silent );
             results.result = "[D+F] " + result.result + " + ";
             result = await rollFromFolder( "[ Foci ]", silent );

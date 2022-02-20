@@ -2,7 +2,7 @@
   "name": "starforged",
   "title": "Ironsworn: Starforged-forked",
   "description": "Forked version of Ironsworn: Starforged for FoundryVTT!",
-  "version": "0.6.2",
+  "version": "0.6.4",
   "minimumCoreVersion": "0.8.3",
   "compatibleCoreVersion": "0.8.8",
   "author": "Dice T, Zaxim",

@@ -50,6 +50,7 @@ export async function initializeFolders() {
     folderList.push("[ Foci ]");
     folderList.push("[ Themes ]");
     folderList.push("[ Story Complications ]");
+    folderList.push("[ Story Clue ]");
     folderList.push("= Characters =");
     folderList.push("[ Characters - Callsigns ]");
     folderList.push("[ Characters - Dispositions ]");
@@ -84,6 +85,7 @@ export async function initializeFolders() {
     folderList.push("Location Theme - Haunted");
     folderList.push("Location Theme - Infested");
     folderList.push("Location Theme - Inhabited");
+    folderList.push("Location Theme - Mechanical");
     folderList.push("Location Theme - Ruined");
     folderList.push("Location Theme - Sacred");
     folderList.push("= Planets =");
@@ -230,6 +232,7 @@ export async function initializeRollTables() {
     tables.push( {table: "Starforged - Descriptor", folder: "[ Descriptors ]"} );
     tables.push( {table: "Starforged - Focus", folder: "[ Foci ]"} );
     tables.push( {table: "Story Complication", folder: "[ Story Complications ]"} );
+    tables.push( {table: "Story Clue", folder: "[ Story Clue ]"} );
     tables.push( {table: "Starforged - Theme", folder: "[ Themes ]"} );
 
     tables.push( {table: "Character - Callsign", folder: "[ Characters - Callsigns ]"} );
@@ -312,6 +315,9 @@ export async function initializeRollTables() {
     tables.push( {table: "Location Theme - Inhabited - Feature", folder: "Location Theme - Inhabited"} );
     tables.push( {table: "Location Theme - Inhabited - Opportunity", folder: "Location Theme - Inhabited"} );
     tables.push( {table: "Location Theme - Inhabited - Peril", folder: "Location Theme - Inhabited"} );
+    tables.push( {table: "Location Theme - Mechanical - Feature", folder: "Location Theme - Mechanical"} );
+    tables.push( {table: "Location Theme - Mechanical - Opportunity", folder: "Location Theme - Mechanical"} );
+    tables.push( {table: "Location Theme - Mechanical - Peril", folder: "Location Theme - Mechanical"} );
     tables.push( {table: "Location Theme - Ruined - Feature", folder: "Location Theme - Ruined"} );
     tables.push( {table: "Location Theme - Ruined - Opportunity", folder: "Location Theme - Ruined"} );
     tables.push( {table: "Location Theme - Ruined - Peril", folder: "Location Theme - Ruined"} );
@@ -466,7 +472,6 @@ export async function initializeRollTables() {
             const tableID = index.find( i => i.name === currentTable.table )._id;
             const table = await pack.getDocument(tableID);
             const folderID = await game.folders.getName(currentTable.folder).id;
-            console.log(folderID);
             let newTable = await RollTable.create(table.data);
             await newTable.update( { folder: folderID } );
         }
