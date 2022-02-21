@@ -310,10 +310,10 @@ export async function importOracles() {
   };
 
   let oraclesJson = await fetch('/systems/starforged/dataforged-main/next/oracles.json').then(x => x.json());
-  let oracleJsonString = JSON.stringify(oraclesJson);
+  let oracleJsonString = await JSON.stringify(oraclesJson);
   // Remove ⏵ from JSON as it breaks case statements in other parts of the code
-  oracleJsonString = oracleJsonString.replace("⏵", "");
-  oraclesJson = JSON.parse(oracleJsonString);
+  oracleJsonString = await oracleJsonString.replaceAll("⏵", "");
+  oraclesJson = await JSON.parse(oracleJsonString);
   
   let oracleTables = [];
   const pack = await game.packs.get("starforged.starforged-tables");
