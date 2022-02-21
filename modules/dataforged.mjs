@@ -17,13 +17,13 @@ export async function processDataforged() {
     
     await importTruths();
     await importOracles();
-    //await importMoves();
-    //await importAssets();
+    await importMoves();
+    await importAssets();
 
-  //   for (const key of pack_list) {
-  //     const pack = await game.packs.get(key);
-  //     await pack.configure({ locked: true });
-  // }
+    for (const key of pack_list) {
+      const pack = await game.packs.get(key);
+      await pack.configure({ locked: true });
+  }
 
 }
 
@@ -309,7 +309,12 @@ export async function importOracles() {
     // TODO: Add faction oracles
   };
 
-  const oraclesJson = await fetch('/systems/starforged/dataforged-main/next/oracles.json').then(x => x.json());
+  let oraclesJson = await fetch('/systems/starforged/dataforged-main/next/oracles.json').then(x => x.json());
+  let oracleJsonString = JSON.stringify(oraclesJson);
+  // Remove ⏵ from JSON as it breaks case statements in other parts of the code
+  oracleJsonString = oracleJsonString.replace("⏵", "");
+  oraclesJson = JSON.parse(oracleJsonString);
+  
   let oracleTables = [];
   const pack = await game.packs.get("starforged.starforged-tables");
   const index = await pack.getIndex();
@@ -339,7 +344,7 @@ export async function importOracles() {
       const findResult = await index.find( i => i.name === table_name );
       if (typeof findResult !== "undefined") {
         const table = await pack.getDocument(findResult._id);
-        rollTableData.description = table.description
+        rollTableData.description = table.data.description;
         await table.delete();
       }
       return await pack.documentClass.create ( rollTableData, {pack: pack.collection});
